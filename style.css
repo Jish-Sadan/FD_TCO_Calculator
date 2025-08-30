@@ -16,18 +16,17 @@ body {
     border-radius: 16px;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
     width: 100%;
-    max-width: 900px; /* UPDATED: Wider calculator */
+    max-width: 900px;
 }
 
 h1 { text-align: center; font-size: 1.8em; color: #333; }
 h2 { font-size: 1.2em; color: #555; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; text-align: center; }
 h2.addons-title { margin-bottom: 15px; }
 
-/* NEW: Main Grid for 2-column layout */
 .main-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px; /* Space between columns */
+    gap: 40px;
     margin-top: 25px;
 }
 .config-column {
@@ -71,8 +70,8 @@ input:checked + .slider:before { transform: translateX(26px); }
 .addon-toggle input:checked + label::after { transform: translateX(18px); }
 
 .addon-price { font-size: 0.9em; font-weight: 500; color: #6c757d; margin-left: 15px; white-space: nowrap; }
-div[id$="Container"] { padding: 0 15px; margin-top: -10px; margin-bottom: 10px; }
-div[id$="Container"] input[type="number"] { max-width: 120px; }
+div[id$="Container"] { padding: 0 15px; margin-top: -5px; margin-bottom: 10px; }
+div[id$="Container"] input[type="number"], div[id$="Container"] select { max-width: 150px; }
 .hidden { display: none; }
 
 button#summaryBtn { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; transition: background-color 0.3s; }
