@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aiCopilot: document.getElementById('aiCopilot'), copilotPriceDisplay: document.getElementById('copilotPriceDisplay'),
         aiAgent: document.getElementById('aiAgent'), aiInsights: document.getElementById('aiInsights'),
         connectorTasksToggle: document.getElementById('connectorTasksToggle'), marketingContactsToggle: document.getElementById('marketingContactsToggle'),
-        botSessionsContainer: document.getElementById('botSessionsContainer'), botSessionPacks: document.getElementById('botSessionPacks'), // UPDATED
+        botSessionsContainer: document.getElementById('botSessionsContainer'), botSessionPacks: document.getElementById('botSessionPacks'),
         connectorTasksContainer: document.getElementById('connectorTasksContainer'), connectorTasks: document.getElementById('connectorTasks'), connectorTasksValue: document.getElementById('connectorTasksValue'),
         marketingContactsContainer: document.getElementById('marketingContactsContainer'), marketingContacts: document.getElementById('marketingContacts'), marketingContactsValue: document.getElementById('marketingContactsValue'),
         totalCost: document.getElementById('totalCost'), currencySymbol: document.getElementById('currencySymbol'), billingFrequency: document.getElementById('billingFrequency'),
@@ -60,17 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (elements.aiCopilot.checked) { totalCostUSD += copilotPricePerAgentUSD * numAgents; }
 
-        // UPDATED: Simplified calculation for session packs
         if (elements.aiAgent.checked) {
             const numPacks = parseInt(elements.botSessionPacks.value) || 0;
             const packInfo = pricingData.addOns.packs.aiAgentSessions;
-            if (numPacks > 0) {
-                totalCostUSD += numPacks * packInfo.price;
-            }
+            if (numPacks > 0) { totalCostUSD += numPacks * packInfo.price; }
         }
-        
-        if (elements.connectorTasksToggle.checked) { /* ... same logic ... */ }
-        if (elements.marketingContactsToggle.checked) { /* ... same logic ... */ }
+        if (elements.connectorTasksToggle.checked) {
+            const tasks = parseInt(elements.connectorTasks.value);
+            const packInfo = pricingData.addOns.packs.connectorTasks;
+            if (tasks > 0) { const numPacks = Math.ceil(tasks / packInfo.size); totalCostUSD += numPacks * packInfo.price; }
+        }
+        if (elements.marketingContactsToggle.checked) {
+            const contacts = parseInt(elements.marketingContacts.value);
+            const tiers = pricingData.addOns.tiered.marketingContacts;
+            if (contacts > 0) { const foundTier = tiers.find(tier => contacts <= tier.limit) || tiers[tiers.length - 1]; totalCostUSD += foundTier.price; }
+        }
         
         let displayTotal = totalCostUSD;
         if (isAnnual) { displayTotal *= 12; }
@@ -121,9 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleDependentInput(checkbox, container, numericInput) {
         container.classList.toggle('hidden', !checkbox.checked);
-        if (!checkbox.checked && numericInput) {
-            numericInput.value = 0;
-        }
+        if (!checkbox.checked && numericInput) { numericInput.value = 0; }
         updateCalculator();
     }
 
