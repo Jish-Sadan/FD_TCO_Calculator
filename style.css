@@ -16,13 +16,24 @@ body {
     border-radius: 16px;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
     width: 100%;
-    max-width: 520px;
+    max-width: 900px; /* UPDATED: Wider calculator */
 }
 
-h1, h2 { text-align: center; }
-h1 { font-size: 1.8em; color: #333; }
-h2 { font-size: 1.2em; color: #555; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-h2.addons-title { margin-top: 30px; margin-bottom: 15px; }
+h1 { text-align: center; font-size: 1.8em; color: #333; }
+h2 { font-size: 1.2em; color: #555; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; text-align: center; }
+h2.addons-title { margin-bottom: 15px; }
+
+/* NEW: Main Grid for 2-column layout */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px; /* Space between columns */
+    margin-top: 25px;
+}
+.config-column {
+    padding-right: 40px;
+    border-right: 1px solid #eee;
+}
 
 label { font-weight: 600; color: #444; margin-bottom: 8px; display: block; }
 label span { font-weight: normal; background-color: #e9ecef; padding: 2px 6px; border-radius: 4px; color: #495057; }
@@ -32,7 +43,6 @@ select, input[type="number"] { padding: 10px; border: 1px solid #ccc; border-rad
 .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .result { margin-top: 25px; text-align: center; font-size: 1.6em; color: #007bff; background-color: #f0f8ff; padding: 15px; border-radius: 8px; }
 .result h2 { margin: 0; border: none; font-size: 1em; color: #333; }
-
 .price-per-agent { font-size: 0.65em; color: #6c757d; margin-top: 5px; font-weight: 500; }
 
 input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; background: #ddd; border-radius: 5px; outline: none; margin-bottom: 15px; }
@@ -61,10 +71,8 @@ input:checked + .slider:before { transform: translateX(26px); }
 .addon-toggle input:checked + label::after { transform: translateX(18px); }
 
 .addon-price { font-size: 0.9em; font-weight: 500; color: #6c757d; margin-left: 15px; white-space: nowrap; }
-
 div[id$="Container"] { padding: 0 15px; margin-top: -10px; margin-bottom: 10px; }
-div[id$="Container"] input[type="number"] { max-width: 120px; } /* Style for new input */
-
+div[id$="Container"] input[type="number"] { max-width: 120px; }
 .hidden { display: none; }
 
 button#summaryBtn { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; transition: background-color 0.3s; }
