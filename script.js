@@ -1,160 +1,88 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // --- PRICING DATA STRUCTURE ---
-    const pricingData = {
-        "FD_Omni": { "annual": { "Growth": 29, "Pro": 59, "Enterprise": 109 }, "monthly": { "Growth": 35, "Pro": 71, "Enterprise": 131 } },
-        "FD": { "annual": { "Growth": 15, "Pro": 49, "Enterprise": 79 }, "monthly": { "Growth": 18, "Pro": 59, "Enterprise": 95 } },
-        "FC": { "annual": { "Growth": 15, "Pro": 39, "Enterprise": 69 }, "monthly": { "Growth": 18, "Pro": 47, "Enterprise": 83 } },
-        "addOns": {
-            "perAgent": { "aiCopilot": { "monthly": 35, "annual": { "USD": 29, "EUR": 29, "GBP": 23, "INR": 2399 } }, "aiInsights": 0 },
-            "packs": { "aiAgentSessions": { price: 100, size: 1000 }, "connectorTasks": { price: 80, size: 5000 } },
-            "tiered": { "marketingContacts": [ { limit: 5000, price: 75 }, { limit: 10000, price: 150 }, { limit: 25000, price: 400 }, { limit: 50000, price: 850 }, { limit: 100000, price: 1400 } ] }
-        }
-    };
-    const exchangeRates = { "USD": 1, "EUR": 0.92, "GBP": 0.79, "INR": 83.5 };
-    const currencySymbols = { "USD": "$", "EUR": "€", "GBP": "£", "INR": "₹" };
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f7f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 20px 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
-    // --- ELEMENT REFERENCES ---
-    const elements = {
-        currency: document.getElementById('currency'), product: document.getElementById('product'), plan: document.getElementById('plan'),
-        billingToggle: document.getElementById('billingToggle'), billingMonthlyLabel: document.getElementById('billingMonthlyLabel'), billingAnnualLabel: document.getElementById('billingAnnualLabel'),
-        agentCount: document.getElementById('agentCount'), agentCountValue: document.getElementById('agentCountValue'),
-        aiCopilot: document.getElementById('aiCopilot'), copilotPriceDisplay: document.getElementById('copilotPriceDisplay'),
-        aiAgent: document.getElementById('aiAgent'), aiInsights: document.getElementById('aiInsights'),
-        connectorTasksToggle: document.getElementById('connectorTasksToggle'), marketingContactsToggle: document.getElementById('marketingContactsToggle'),
-        botSessionsContainer: document.getElementById('botSessionsContainer'), botSessionPacks: document.getElementById('botSessionPacks'),
-        connectorTasksContainer: document.getElementById('connectorTasksContainer'), connectorTasks: document.getElementById('connectorTasks'), connectorTasksValue: document.getElementById('connectorTasksValue'),
-        marketingContactsContainer: document.getElementById('marketingContactsContainer'), marketingContacts: document.getElementById('marketingContacts'), marketingContactsValue: document.getElementById('marketingContactsValue'),
-        totalCost: document.getElementById('totalCost'), currencySymbol: document.getElementById('currencySymbol'), billingFrequency: document.getElementById('billingFrequency'),
-        pricePerAgent: document.getElementById('pricePerAgent'), currencySymbolAgent: document.getElementById('currencySymbolAgent'),
-        summaryBtn: document.getElementById('summaryBtn'), modal: document.getElementById('summaryModal'), closeBtn: document.querySelector('.close-button'), summaryDetails: document.getElementById('summaryDetails')
-    };
-    
-    // --- LOGIC ---
-    function updateCalculator() {
-        const isAnnual = elements.billingToggle.checked;
-        const billingCycle = isAnnual ? 'annual' : 'monthly';
-        const numAgents = parseInt(elements.agentCount.value);
-        const currentCurrency = elements.currency.value;
+.calculator {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+    width: 100%;
+    max-width: 900px;
+}
 
-        elements.agentCountValue.textContent = numAgents;
-        elements.connectorTasksValue.textContent = parseInt(elements.connectorTasks.value).toLocaleString();
-        elements.marketingContactsValue.textContent = parseInt(elements.marketingContacts.value).toLocaleString();
-        elements.billingMonthlyLabel.classList.toggle('active-billing-label', !isAnnual);
-        elements.billingAnnualLabel.classList.toggle('active-billing-label', isAnnual);
+h1 { text-align: center; font-size: 1.8em; color: #333; }
+h2 { font-size: 1.2em; color: #555; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; text-align: center; }
+h2.addons-title { margin-bottom: 15px; }
 
-        const basePricePerAgentUSD = pricingData[elements.product.value][billingCycle][elements.plan.value];
-        let totalCostUSD = basePricePerAgentUSD * numAgents;
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 25px;
+}
+.config-column {
+    padding-right: 40px;
+    border-right: 1px solid #eee;
+}
 
-        if (elements.aiInsights.checked) { totalCostUSD += pricingData.addOns.perAgent.aiInsights * numAgents; }
+label { font-weight: 600; color: #444; margin-bottom: 8px; display: block; }
+label span { font-weight: normal; background-color: #e9ecef; padding: 2px 6px; border-radius: 4px; color: #495057; }
 
-        const copilotInfo = pricingData.addOns.perAgent.aiCopilot;
-        let copilotPricePerAgentUSD = 0;
-        if (billingCycle === 'annual') {
-            copilotPricePerAgentUSD = copilotInfo.annual.USD;
-            const localPrice = copilotInfo.annual[currentCurrency];
-            elements.copilotPriceDisplay.textContent = `${currencySymbols[currentCurrency]}${localPrice.toLocaleString()} / agent`;
-        } else {
-            copilotPricePerAgentUSD = copilotInfo.monthly;
-            const localPrice = copilotPricePerAgentUSD * exchangeRates[currentCurrency];
-            elements.copilotPriceDisplay.textContent = `${currencySymbols[currentCurrency]}${localPrice.toFixed(0)} / agent`;
-        }
-        if (elements.aiCopilot.checked) { totalCostUSD += copilotPricePerAgentUSD * numAgents; }
+select, input[type="number"] { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; width: 100%; box-sizing: border-box; }
 
-        if (elements.aiAgent.checked) {
-            const numPacks = parseInt(elements.botSessionPacks.value) || 0;
-            const packInfo = pricingData.addOns.packs.aiAgentSessions;
-            if (numPacks > 0) { totalCostUSD += numPacks * packInfo.price; }
-        }
-        if (elements.connectorTasksToggle.checked) {
-            const tasks = parseInt(elements.connectorTasks.value);
-            const packInfo = pricingData.addOns.packs.connectorTasks;
-            if (tasks > 0) { const numPacks = Math.ceil(tasks / packInfo.size); totalCostUSD += numPacks * packInfo.price; }
-        }
-        if (elements.marketingContactsToggle.checked) {
-            const contacts = parseInt(elements.marketingContacts.value);
-            const tiers = pricingData.addOns.tiered.marketingContacts;
-            if (contacts > 0) { const foundTier = tiers.find(tier => contacts <= tier.limit) || tiers[tiers.length - 1]; totalCostUSD += foundTier.price; }
-        }
-        
-        let displayTotal = totalCostUSD;
-        if (isAnnual) { displayTotal *= 12; }
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.result { margin-top: 25px; text-align: center; font-size: 1.6em; color: #007bff; background-color: #f0f8ff; padding: 15px; border-radius: 8px; }
+.result h2 { margin: 0; border: none; font-size: 1em; color: #333; }
+.price-per-agent { font-size: 0.65em; color: #6c757d; margin-top: 5px; font-weight: 500; }
 
-        let finalConvertedTotal = displayTotal * exchangeRates[currentCurrency];
-        
-        if (isAnnual && elements.aiCopilot.checked) {
-            const totalWithoutCopilot = (totalCostUSD - (copilotPricePerAgentUSD * numAgents)) * 12 * exchangeRates[currentCurrency];
-            const fixedCopilotTotal = copilotInfo.annual[currentCurrency] * numAgents * 12;
-            finalConvertedTotal = totalWithoutCopilot + fixedCopilotTotal;
-        }
-        
-        elements.currencySymbol.textContent = currencySymbols[currentCurrency];
-        elements.totalCost.textContent = finalConvertedTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const convertedPricePerAgent = basePricePerAgentUSD * exchangeRates[currentCurrency];
-        elements.currencySymbolAgent.textContent = currencySymbols[currentCurrency];
-        elements.pricePerAgent.textContent = convertedPricePerAgent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    
-    function generateSummary() {
-        const getSelectedText = (el) => el.options[el.selectedIndex].text;
-        const isChecked = (el) => el.checked ? 'Yes' : 'No';
-        const numPacks = parseInt(elements.botSessionPacks.value) || 0;
-        const packSize = pricingData.addOns.packs.aiAgentSessions.size;
-        
-        const summary = `
-            <ul>
-                <li><strong>Product:</strong> ${getSelectedText(elements.product)}</li>
-                <li><strong>Plan:</strong> ${getSelectedText(elements.plan)}</li>
-                <li><strong>Billing:</strong> ${elements.billingToggle.checked ? 'Annual' : 'Monthly'}</li>
-                <li><strong>Currency:</strong> ${elements.currency.value}</li>
-                <br>
-                <li><strong>Base Price:</strong> ${elements.currencySymbolAgent.textContent}${elements.pricePerAgent.textContent} / agent</li>
-                <li><strong>Agent Count:</strong> ${elements.agentCount.value}</li>
-                <br>
-                <li><strong>Freddy AI Copilot:</strong> ${isChecked(elements.aiCopilot)}</li>
-                <li><strong>Freddy AI Insights:</strong> ${isChecked(elements.aiInsights)}</li>
-                <li><strong>AI Agent Sessions:</strong> ${isChecked(elements.aiAgent)} (${numPacks} packs / ${(numPacks * packSize).toLocaleString()} sessions)</li>
-                <li><strong>Connector Tasks:</strong> ${isChecked(elements.connectorTasksToggle)} (${parseInt(elements.connectorTasks.value).toLocaleString()} tasks)</li>
-                <li><strong>Marketing Contacts:</strong> ${isChecked(elements.marketingContactsToggle)} (${parseInt(elements.marketingContacts.value).toLocaleString()} contacts)</li>
-                <br>
-                <li><strong>Final Cost:</strong> ${elements.currencySymbol.textContent}${elements.totalCost.textContent} ${elements.billingFrequency.textContent}</li>
-            </ul>
-        `;
-        elements.summaryDetails.innerHTML = summary;
-        elements.modal.style.display = 'block';
-    }
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; background: #ddd; border-radius: 5px; outline: none; margin-bottom: 15px; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #007bff; border-radius: 50%; cursor: pointer; }
 
-    function toggleDependentInput(checkbox, container, numericInput) {
-        container.classList.toggle('hidden', !checkbox.checked);
-        if (!checkbox.checked && numericInput) { numericInput.value = 0; }
-        updateCalculator();
-    }
+.toggle-container { display: flex; justify-content: center; align-items: center; margin: 25px 0; }
+.toggle-container span { font-size: 1em; color: #888; font-weight: 500; transition: all 0.3s ease; }
+.toggle-container span.active-billing-label { color: #007bff; font-weight: 700; transform: scale(1.05); }
 
-    // --- EVENT LISTENERS ---
-    const allInputs = document.querySelectorAll('.calculator select, .calculator input');
-    allInputs.forEach(input => {
-        if (input.id !== 'aiCopilot') {
-            const eventType = (input.type === 'range' || input.type === 'number') ? 'input' : 'change';
-            input.addEventListener(eventType, updateCalculator);
-        }
-    });
-    
-    elements.aiCopilot.addEventListener('change', () => {
-        if (elements.aiCopilot.checked) { elements.aiInsights.checked = true; }
-        updateCalculator();
-    });
-    
-    elements.aiAgent.addEventListener('change', () => toggleDependentInput(elements.aiAgent, elements.botSessionsContainer, elements.botSessionPacks));
-    elements.connectorTasksToggle.addEventListener('change', () => toggleDependentInput(elements.connectorTasksToggle, elements.connectorTasksContainer, elements.connectorTasks));
-    elements.marketingContactsToggle.addEventListener('change', () => toggleDependentInput(elements.marketingContactsToggle, elements.marketingContactsContainer, elements.marketingContacts));
-    
-    elements.summaryBtn.addEventListener('click', generateSummary);
-    elements.modal.style.display = 'none';
-    elements.closeBtn.addEventListener('click', () => elements.modal.style.display = 'none');
-    window.addEventListener('click', (event) => { if (event.target == elements.modal) elements.modal.style.display = 'none'; });
-    
-    // --- INITIAL RUN ---
-    updateCalculator();
-    toggleDependentInput(elements.aiAgent, elements.botSessionsContainer, elements.botSessionPacks);
-    toggleDependentInput(elements.connectorTasksToggle, elements.connectorTasksContainer, elements.connectorTasks);
-    toggleDependentInput(elements.marketingContactsToggle, elements.marketingContactsContainer, elements.marketingContacts);
-});
+.switch { position: relative; display: inline-block; width: 60px; height: 34px; margin: 0 15px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+input:checked + .slider { background-color: #007bff; }
+input:checked + .slider:before { transform: translateX(26px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+.addon-toggle { display: flex; align-items: center; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; margin-bottom: 10px; transition: background-color 0.3s, border-color 0.3s; }
+.addon-toggle input[type="checkbox"] { display: none; }
+.addon-toggle label { margin: 0; flex-grow: 1; cursor: pointer; font-weight: 600; }
+.addon-toggle label::before { content: ''; display: inline-block; width: 40px; height: 22px; border-radius: 11px; background-color: #ccc; margin-right: 12px; vertical-align: middle; transition: background-color 0.3s; position: relative; }
+.addon-toggle label::after { content: ''; display: inline-block; width: 18px; height: 18px; border-radius: 50%; background-color: white; position: absolute; left: 14px; top: 14px; transition: transform 0.3s; transform: translateX(0); }
+.addon-toggle input:checked + label { color: #007bff; }
+.addon-toggle input:checked + label::before { background-color: #007bff; }
+.addon-toggle input:checked + label::after { transform: translateX(18px); }
+
+.addon-price { font-size: 0.9em; font-weight: 500; color: #6c757d; margin-left: 15px; white-space: nowrap; }
+div[id$="Container"] { padding: 0 15px; margin-top: -5px; margin-bottom: 10px; }
+div[id$="Container"] input[type="number"], div[id$="Container"] select { max-width: 150px; }
+.hidden { display: none; }
+
+button#summaryBtn { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; transition: background-color 0.3s; }
+button#summaryBtn:hover { background-color: #218838; }
+
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
+.modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px 30px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideIn 0.3s; }
+.close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close-button:hover, .close-button:focus { color: black; }
+@keyframes fadeIn { from {opacity: 0} to {opacity: 1} }
+@keyframes slideIn { from {transform: translateY(-50px)} to {transform: translateY(0)} }
+#summaryDetails ul { list-style-type: none; padding: 0; }
+#summaryDetails li { padding: 8px 0; border-bottom: 1px solid #eee; }
+#summaryDetails strong { color: #333; }
