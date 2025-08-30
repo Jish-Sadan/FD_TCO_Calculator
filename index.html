@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS TCO Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="calculator">
+        <h1>SaaS TCO Calculator 📋</h1>
+        
+        <h2>Configure Your Plan</h2>
+
+        <div class="controls-grid">
+            <div>
+                <label for="currency">Currency:</label>
+                <select id="currency">
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="INR">INR (₹)</option>
+                </select>
+            </div>
+            <div>
+                <label for="product">Product Line:</label>
+                <select id="product">
+                    <option value="FD_Omni">Freshdesk Omnichannel</option>
+                    <option value="FD">Freshdesk Support Desk</option>
+                    <option value="FC">Freshchat</option>
+                </select>
+            </div>
+        </div>
+
+        <label for="plan">Plan:</label>
+        <select id="plan">
+            <option value="Growth">Growth</option>
+            <option value="Pro">Pro</option>
+            <option value="Enterprise">Enterprise</option>
+        </select>
+        
+        <div class="toggle-container">
+            <span id="billingMonthlyLabel" class="active-billing-label">Billed Monthly</span>
+            <label class="switch">
+                <input type="checkbox" id="billingToggle">
+                <span class="slider round"></span>
+            </label>
+            <span id="billingAnnualLabel">Billed Annually</span>
+        </div>
+
+        <label for="agentCount">Agent Count: <span id="agentCountValue">35</span></label>
+        <input type="range" id="agentCount" value="35" min="1" max="200">
+
+        <h2 class="addons-title">Add-ons</h2>
+
+        <div class="addon-toggle">
+            <input type="checkbox" id="aiCopilot">
+            <label for="aiCopilot">Freddy AI Copilot</label>
+            <div class="addon-price" id="copilotPriceDisplay">$35 / agent</div>
+        </div>
+        
+        <div class="addon-toggle">
+            <input type="checkbox" id="aiAgent">
+            <label for="aiAgent">Freddy AI Agent Sessions</label>
+            <div class="addon-price">$100 / pack</div>
+        </div>
+        <div id="botSessionsContainer" class="hidden">
+            <label for="botSessionPacks">Number of Session Packs (1,000 sessions/pack)</label>
+            <input type="number" id="botSessionPacks" value="1" min="0">
+        </div>
+        
+        <div class="addon-toggle">
+            <input type="checkbox" id="aiInsights">
+            <label for="aiInsights">Freddy AI Insights (Beta)</label>
+            <div class="addon-price">$0 / agent</div>
+        </div>
+        
+        <div class="addon-toggle">
+            <input type="checkbox" id="connectorTasksToggle">
+            <label for="connectorTasksToggle">Connector App Tasks</label>
+            <div class="addon-price">$80 / pack</div>
+        </div>
+        <div id="connectorTasksContainer" class="hidden">
+            <label for="connectorTasks">Monthly Tasks (1 pack = 5,000): <span id="connectorTasksValue">5000</span></label>
+            <input type="range" id="connectorTasks" value="5000" min="0" max="50000" step="5000">
+        </div>
+
+        <div class="addon-toggle">
+            <input type="checkbox" id="marketingContactsToggle">
+            <label for="marketingContactsToggle">Marketing Contacts</label>
+            <div class="addon-price">Tiered</div>
+        </div>
+        <div id="marketingContactsContainer" class="hidden">
+            <label for="marketingContacts">Number of Contacts: <span id="marketingContactsValue">10000</span></label>
+            <input type="range" id="marketingContacts" value="10000" min="0" max="100000" step="1000">
+        </div>
+        
+        <div class="result">
+            <h2>Total Cost: <span id="currencySymbol">$</span><span id="totalCost">0.00</span> <span id="billingFrequency">/month</span></h2>
+            <p class="price-per-agent">(<span id="currencySymbolAgent">$</span><span id="pricePerAgent">0.00</span> / agent)</p>
+        </div>
+        
+        <button id="summaryBtn">Generate Summary</button>
+    </div>
+
+    <div id="summaryModal" class="modal"><div class="modal-content"><span class="close-button">&times;</span><h2>Configuration Summary</h2><div id="summaryDetails"></div></div></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
